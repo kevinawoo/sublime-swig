@@ -2,6 +2,13 @@
 
 > Syntax highlighting for Swig Templates in Sublime Text.
 
+Syntax changed from default to:
+```
+varControls: ['{{', '}}'] ==> ['<%=', '%>']
+tagControls: ['{%', '%}'] ==> ['<%', '%>']
+cmtControls: ['{#', '#}'] ==> ['<#', '#>']
+ ```
+
 Companion to [Monokai Extended](https://github.com/jonschlinkert/sublime-monokai-extended) and [sublime-markdown-extended](https://github.com/jonschlinkert/sublime-markdown-extended).
 
 I'm working on getting this published so you can install it using Package Control, but for now to use this in Sublime Text, go to `Sublime Text 3/Packages` and:
