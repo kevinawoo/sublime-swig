@@ -1,0 +1,289 @@
+fileTypes:
+- swig
+foldingStartMarker: (?x)(<(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|form|dl)\b.*?>|<!--(?!.*-->)|\{\s*($|\?>\s*$|//|/\*(.*\*/\s*$|(?!.*?\*/)))|(\{\{\#)|^[^\S\n]*(```)[^\S\n]*(.+?)?$)
+foldingStopMarker: (?x)(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|form|dl)>|^\s*-->|(^|\s)\}|(\{\{/)|^[^\S\n]*(```)[^\S\n]*$)
+name: Swig
+patterns:
+- begin: (<)(style)(>)\s*$
+  captures:
+    '1':
+      name: punctuation.definition.tag.begin
+    '2':
+      name: entity.name.tag.style.html
+    '3':
+      name: punctuation.definition.tag.end
+    '4':
+      name: punctuation.definition.tag.begin
+    '5':
+      name: entity.name.tag.style.html
+  end: (<\/)(style)(>)\s*
+  name: source.css.embedded.html
+  patterns:
+  - include: source.css
+- include: '#yfm'
+- include: '#comments'
+- include: '#block_expressions'
+- include: '#end_block'
+- include: '#include_and_var'
+- include: '#tags'
+- include: text.html.basic
+- include: '#html_tags'
+repository:
+  block_expressions:
+    begin: (<\%\s*[-a-zA-Z0-9_\./]+)\s+([-a-zA-Z0-9_\./]+)*
+    beginCaptures:
+      '1':
+        name: support.constant.swig
+      '2':
+        name: variable.parameter.swig
+    end: (\%\>)
+    endCaptures:
+      '1':
+        name: support.constant.swig
+    name: meta.function.block.start.swig
+    patterns:
+    - include: '#string_single_quoted'
+    - include: '#string_double_quoted'
+  comments:
+    patterns:
+    - begin: <\#
+      end: \#>
+      name: comment.block.swig
+      patterns:
+      - match: '@\w*'
+        name: keyword.annotation.swig
+      - include: '#comments'
+    - begin: <!--
+      captures:
+        '0':
+          name: punctuation.definition.comment.html
+      end: -{2,3}\s*>
+      name: comment.block.html
+      patterns:
+      - match: --
+        name: invalid.illegal.bad-comments-or-CDATA.html
+      - include: '#embedded-code'
+  end_block:
+    begin: (<\%/)([a-zA-Z0-9_\.-]+)\s*
+    beginCaptures:
+      '1':
+        name: support.constant.swig
+      '2':
+        name: support.constant.swig
+    end: (\%>)
+    endCaptures:
+      '1':
+        name: support.constant.swig
+    name: meta.function.block.end.swig.sproutcore
+    patterns: []
+  entities:
+    patterns:
+    - captures:
+        '1':
+          name: punctuation.definition.entity.html
+        '3':
+          name: punctuation.definition.entity.html
+      match: (&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)
+      name: constant.character.entity.html
+    - match: '&'
+      name: invalid.illegal.bad-ampersand.html
+  html_tags:
+    patterns:
+    - begin: (<)([a-zA-Z0-9:]++)(?=[^>]*></\2>)
+      beginCaptures:
+        '1':
+          name: punctuation.definition.tag.begin.html
+        '2':
+          name: entity.name.tag.html
+      end: (>)(<)(/)(\2)(>)
+      endCaptures:
+        '1':
+          name: punctuation.definition.tag.end.html
+        '2':
+          name: punctuation.definition.tag.begin.html meta.scope.between-tag-pair.html
+        '3':
+          name: punctuation.definition.tag.begin.html
+        '4':
+          name: entity.name.tag.html
+        '5':
+          name: punctuation.definition.tag.end.html
+      name: meta.tag.any.html
+      patterns:
+      - include: '#tag_stuff'
+    - begin: (</?)((?i:body|head|html)\b)
+      captures:
+        '1':
+          name: punctuation.definition.tag.begin.html
+        '2':
+          name: entity.name.tag.structure.any.html
+      end: (>)
+      endCaptures:
+        '1':
+          name: punctuation.definition.tag.end.html
+      name: meta.tag.structure.any.html
+      patterns:
+      - include: '#tag_stuff'
+    - begin: (</?)((?i:address|blockquote|dd|div|dl|dt|fieldset|form|frame|frameset|h1|h2|h3|h4|h5|h6|iframe|noframes|object|ol|p|ul|applet|center|dir|hr|menu|pre)\b)
+      beginCaptures:
+        '1':
+          name: punctuation.definition.tag.begin.html
+        '2':
+          name: entity.name.tag.block.any.html
+      end: (>)
+      endCaptures:
+        '1':
+          name: punctuation.definition.tag.end.html
+      name: meta.tag.block.any.html
+      patterns:
+      - include: '#tag_stuff'
+    - begin: (</?)((?i:a|abbr|acronym|area|b|base|basefont|bdo|big|br|button|caption|cite|code|col|colgroup|del|dfn|em|font|head|html|i|img|input|ins|isindex|kbd|label|legend|li|link|map|meta|noscript|optgroup|option|param|q|s|samp|script|select|small|span|strike|strong|style|sub|sup|table|tbody|td|textarea|tfoot|th|thead|title|tr|tt|u|var)\b)
+      beginCaptures:
+        '1':
+          name: punctuation.definition.tag.begin.html
+        '2':
+          name: entity.name.tag.inline.any.html
+      end: '((?: ?/)?>)'
+      endCaptures:
+        '1':
+          name: punctuation.definition.tag.end.html
+      name: meta.tag.inline.any.html
+      patterns:
+      - include: '#tag_stuff'
+    - begin: (</?)([a-zA-Z0-9:]+)
+      beginCaptures:
+        '1':
+          name: punctuation.definition.tag.begin.html
+        '2':
+          name: entity.name.tag.other.html
+      end: (>)
+      endCaptures:
+        '1':
+          name: punctuation.definition.tag.end.html
+      name: meta.tag.other.html
+      patterns:
+      - include: '#tag_stuff'
+    - include: '#entities'
+    - match: <>
+      name: invalid.illegal.incomplete.html
+    - match: <
+      name: invalid.illegal.bad-angle-bracket.html
+  include_and_var:
+    begin: (<\%>)\s*([-a-zA-Z0-9_\./]+)*
+    beginCaptures:
+      '1':
+        name: support.constant.handlebars
+      '2':
+        name: variable.parameter.handlebars
+    end: (\s*\%>)
+    endCaptures:
+      '1':
+        name: support.constant.handlebars
+    name: meta.function.inline.other.handlebars
+    patterns:
+    - include: '#string_single_quoted'
+    - include: '#string_double_quoted'
+  string_double_quoted:
+    begin: '"'
+    beginCaptures:
+      '0':
+        name: punctuation.definition.string.begin.html
+    end: '"'
+    endCaptures:
+      '0':
+        name: punctuation.definition.string.end.html
+    name: string.quoted.double.html
+    patterns:
+    - include: '#comments'
+    - include: '#block_expressions'
+    - include: '#end_block'
+    - include: '#include_and_var'
+  string_single_quoted:
+    begin: ''''
+    beginCaptures:
+      '0':
+        name: punctuation.definition.string.begin.html
+    end: ''''
+    endCaptures:
+      '0':
+        name: punctuation.definition.string.end.html
+    name: string.quoted.single.html
+    patterns:
+    - include: '#comments'
+    - include: '#block_expressions'
+    - include: '#end_block'
+    - include: '#include_and_var'
+  tag-id-attribute:
+    begin: \b(id)\b\s*(=)
+    captures:
+      '1':
+        name: entity.other.attribute-name.id.html
+      '2':
+        name: punctuation.separator.key-value.html
+    end: (?<=''|")
+    name: meta.attribute-with-value.id.html
+    patterns:
+    - begin: '"'
+      beginCaptures:
+        '0':
+          name: punctuation.definition.string.begin.html
+      contentName: meta.toc-list.id.html
+      end: '"'
+      endCaptures:
+        '0':
+          name: punctuation.definition.string.end.html
+      name: string.quoted.double.html
+      patterns:
+      - include: '#include_and_var'
+    - begin: ''''
+      beginCaptures:
+        '0':
+          name: punctuation.definition.string.begin.html
+      contentName: meta.toc-list.id.html
+      end: ''''
+      endCaptures:
+        '0':
+          name: punctuation.definition.string.end.html
+      name: string.quoted.single.html
+      patterns:
+      - include: '#comments'
+      - include: '#block_expressions'
+      - include: '#end_block'
+      - include: '#include_and_var'
+  tag_generic_attribute:
+    match: \b([a-zA-Z0-9\-:]+)
+    name: entity.other.attribute-name.html
+    patterns:
+    - include: '#comments'
+    - include: '#block_expressions'
+    - include: '#end_block'
+    - include: '#include_and_var'
+  tag_stuff:
+    patterns:
+    - include: '#tag_id_attribute'
+    - include: '#tag_generic_attribute'
+    - include: '#string_double_quoted'
+    - include: '#string_single_quoted'
+  tags:
+    begin: (<\%=)\s+([-+|a-zA-Z0-9_\./]+)*
+    beginCaptures:
+      '1':
+        name: support.constant.handlebars
+      '2':
+        name: variable.parameter.handlebars
+    end: \s+(\%>)
+    endCaptures:
+      '1':
+        name: support.constant.handlebars
+    name: meta.function.inline.other.handlebars
+    patterns:
+    - include: '#string_single_quoted'
+    - include: '#string_double_quoted'
+  yfm:
+    patterns:
+    - begin: ^---([\w\W]+?)
+      end: (---)(^[\w\W]*)*
+      name: markup.raw.yaml.front-matter
+      patterns:
+      - include: source.yaml
+scopeName: text.html.swig
+uuid: 70E91676-DE0A-4266-A2B9-3AD2E535E484
